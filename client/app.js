@@ -36,7 +36,6 @@ function renderMovies(movies) {
     .map(
       (m) => `
       <div class="movie-card">
-        ${m.poster_url ? `<img src="${m.poster_url}" alt="${m.title}">` : ""}
         <h3>${m.title}</h3>
         <p>${m.overview || ""}</p>
       </div>`,
