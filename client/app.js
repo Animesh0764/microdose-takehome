@@ -1,9 +1,9 @@
-const LOG_STORAGE_KEY = 'microdose_latency_log';
+const LOG_STORAGE_KEY = "latency_log";
 
-const statsEl = document.getElementById('stats');
-const moviesEl = document.getElementById('movies');
-const logBodyEl = document.getElementById('log-body');
-const regionInput = document.getElementById('region-label');
+const statsEl = document.getElementById("stats");
+const moviesEl = document.getElementById("movies");
+const logBodyEl = document.getElementById("log-body");
+const regionInput = document.getElementById("region-label");
 
 function loadLog() {
   const raw = localStorage.getItem(LOG_STORAGE_KEY);
@@ -26,9 +26,9 @@ function renderLog() {
         <td>${row.roundTripMs}</td>
         <td>${row.serverMs}</td>
         <td>${row.networkMs}</td>
-      </tr>`
+      </tr>`,
     )
-    .join('');
+    .join("");
 }
 
 function renderMovies(movies) {
@@ -36,17 +36,17 @@ function renderMovies(movies) {
     .map(
       (m) => `
       <div class="movie-card">
-        ${m.poster_url ? `<img src="${m.poster_url}" alt="${m.title}">` : ''}
+        ${m.poster_url ? `<img src="${m.poster_url}" alt="${m.title}">` : ""}
         <h3>${m.title}</h3>
-        <p>${m.overview || ''}</p>
-      </div>`
+        <p>${m.overview || ""}</p>
+      </div>`,
     )
-    .join('');
+    .join("");
 }
 
 async function runTest() {
-  const region = regionInput.value.trim() || 'unlabeled';
-  statsEl.textContent = 'Testing...';
+  const region = regionInput.value.trim() || "unlabeled";
+  statsEl.textContent = "Testing...";
 
   const start = performance.now();
   let data;
@@ -95,22 +95,23 @@ function clearLog() {
 
 function exportCsv() {
   const log = loadLog();
-  const header = 'region,local_time,round_trip_ms,server_ms,network_ms';
+  const header = "region,local_time,round_trip_ms,server_ms,network_ms";
   const rows = log.map(
-    (r) => `${r.region},${r.localTime},${r.roundTripMs},${r.serverMs},${r.networkMs}`
+    (r) =>
+      `${r.region},${r.localTime},${r.roundTripMs},${r.serverMs},${r.networkMs}`,
   );
-  const csv = [header, ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
-  a.download = 'latency-log.csv';
+  a.download = "latency-log.csv";
   a.click();
   URL.revokeObjectURL(url);
 }
 
-document.getElementById('test-btn').addEventListener('click', runTest);
-document.getElementById('clear-btn').addEventListener('click', clearLog);
-document.getElementById('export-btn').addEventListener('click', exportCsv);
+document.getElementById("test-btn").addEventListener("click", runTest);
+document.getElementById("clear-btn").addEventListener("click", clearLog);
+document.getElementById("export-btn").addEventListener("click", exportCsv);
 
 renderLog();
