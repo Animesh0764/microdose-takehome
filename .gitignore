@@ -1,0 +1,7 @@
+server/env/
+**/__pycache__/
+*.pyc
+server/server/db.sqlite3
+server/server/staticfiles/
+server/server/.env
+.DS_Store

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Microdose Latency Demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Microdose Latency Demo</h1>
+    <p class="subtitle">Backend is deployed in a single region. Connect to a VPN in a different country, label the run below, and hit Test to compare latency.</p>
+  </header>
+
+  <section class="controls">
+    <input id="region-label" type="text" placeholder="Region label (e.g. India, US, Russia)">
+    <button id="test-btn">Test</button>
+    <button id="clear-btn">Clear log</button>
+    <button id="export-btn">Export CSV</button>
+  </section>
+
+  <section id="stats" class="stats"></section>
+
+  <section id="movies" class="movies"></section>
+
+  <section class="log">
+    <h2>Latency log</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Region</th>
+          <th>Local time</th>
+          <th>Round-trip (ms)</th>
+          <th>Server processing (ms)</th>
+          <th>Est. network (ms)</th>
+        </tr>
+      </thead>
+      <tbody id="log-body"></tbody>
+    </table>
+  </section>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
