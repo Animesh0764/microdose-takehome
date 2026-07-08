@@ -56,7 +56,7 @@ The backend is a single deployment in one region — this isn't a multi-region
 setup. To compare regions: connect to a VPN server in the target country,
 open the frontend, type a region label, click **Test**. Repeat per region
 (a few runs each — single samples are noisy). The log persists in the
-browser and can be exported as CSV.
+browser across reloads.
 
 Each row reports:
 - **Round-trip (ms):** total time measured by the browser

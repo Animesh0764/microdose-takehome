@@ -92,24 +92,7 @@ function clearLog() {
   renderLog();
 }
 
-function exportCsv() {
-  const log = loadLog();
-  const header = "region,round_trip_ms,server_ms,network_ms";
-  const rows = log.map(
-    (r) => `${r.region},${r.roundTripMs},${r.serverMs},${r.networkMs}`,
-  );
-  const csv = [header, ...rows].join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "latency-log.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 document.getElementById("test-btn").addEventListener("click", runTest);
 document.getElementById("clear-btn").addEventListener("click", clearLog);
-document.getElementById("export-btn").addEventListener("click", exportCsv);
 
 renderLog();
