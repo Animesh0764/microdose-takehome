@@ -1,95 +1,76 @@
 # Microdose Latency Demo
 
-A Django API that fetches movies from TMDB, plus a static frontend that times
-requests and lets you log/compare latency from different regions (via VPN).
+Django API that fetches movies from TMDB, plus a static frontend that times
+each request and logs latency across different network locations (tested via VPN).
+
+## Live
+
+- API: https://microdose-takehome.onrender.com/api/movie/
+- Frontend: https://microdose-takehome-1.onrender.com/
 
 ## Project layout
 
-- `server/server/` — Django project (manage.py lives here)
+- `server/server/` — Django project (`manage.py` lives here)
 - `client/` — static frontend, no build step
 
-## 1. Local setup (backend)
+## Local setup
+
+Backend:
 
 ```
 cd server
-./env/Scripts/activate        # or: source env/bin/activate on Mac/Linux
+./env/Scripts/activate
 pip install -r requirements.txt
 cd server
-copy .env.example .env         # or: cp .env.example .env
+copy .env.example .env
 ```
 
-Edit `server/server/.env` and set `TMDB_API_KEY` (get a free key at
-https://www.themoviedb.org/settings/api — takes ~2 minutes, no cost).
-
-Then:
+Fill in `TMDB_API_KEY` in `server/server/.env` (free key at
+https://www.themoviedb.org/settings/api), then:
 
 ```
 python manage.py migrate
 python manage.py runserver
 ```
 
-API is now at `http://localhost:8000/api/movie/`.
+Frontend: open `client/index.html` directly, or serve it with
+`python -m http.server 5500` from the `client/` folder. Point
+`client/config.js` at `http://localhost:8000` for local testing, or at the
+live Render API URL above.
 
-## 2. Local setup (frontend)
+## Redeploying
 
-`client/config.js` already points at `http://localhost:8000`. Just open
-`client/index.html` in a browser, or serve it:
+Backend (Render Web Service):
+- Root Directory: `server`
+- Region: Singapore (closest Render region to India)
+- Build Command: `pip install -r requirements.txt && cd server && python manage.py collectstatic --noinput && python manage.py migrate`
+- Start Command: `gunicorn --chdir server server.wsgi:application --bind 0.0.0.0:$PORT`
+- Env vars: `TMDB_API_KEY`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=False`, `DJANGO_ALLOWED_HOSTS=<service>.onrender.com`
 
-```
-cd client
-python -m http.server 5500
-```
+Frontend (Render Static Site):
+- Root Directory: `client`, Publish Directory: `.`, no build command
 
-Click **Test** — it fetches a movie, times the round trip, and logs the
-result.
+## Latency testing methodology
 
-## 3. Deploy backend to Render
+The backend is a single deployment in one region — this isn't a multi-region
+setup. To compare regions: connect to a VPN server in the target country,
+open the frontend, type a region label, click **Test**. Repeat per region
+(a few runs each — single samples are noisy). The log persists in the
+browser and can be exported as CSV.
 
-1. Push this repo to GitHub.
-2. Render dashboard → New → Web Service → connect the repo.
-3. Settings:
-   - **Root Directory:** `server`
-   - **Region:** Singapore (Render has no Mumbai/India region — Singapore is
-     the closest available)
-   - **Build Command:** `pip install -r requirements.txt && cd server && python manage.py collectstatic --noinput && python manage.py migrate`
-   - **Start Command:** `gunicorn --chdir server server.wsgi:application --bind 0.0.0.0:$PORT`
-4. Environment variables (Render dashboard → Environment):
-   - `TMDB_API_KEY` = your key
-   - `DJANGO_SECRET_KEY` = any long random string
-   - `DJANGO_DEBUG` = `False`
-   - `DJANGO_ALLOWED_HOSTS` = `your-service-name.onrender.com`
-5. Deploy. Note the resulting URL, e.g. `https://microdose-api.onrender.com`.
+Each row reports:
+- **Round-trip (ms):** total time measured by the browser
+- **Server processing (ms):** time the Django server spent calling TMDB
+  (isolates backend cost from network cost)
+- **Est. network latency (ms):** round-trip minus server processing —
+  the portion attributable to distance/VPN routing
 
-## 4. Deploy frontend to Render
+## Findings
 
-1. Update `client/config.js`:
-   ```
-   const API_BASE_URL = 'https://microdose-api.onrender.com';
-   ```
-2. Commit and push.
-3. Render dashboard → New → Static Site → connect the repo.
-   - **Root Directory:** `client`
-   - **Build Command:** (leave empty)
-   - **Publish Directory:** `.`
-4. Deploy. You'll get a URL like `https://microdose-client.onrender.com`.
+_Fill in after running the VPN comparison:_
 
-## 5. Testing latency from different regions
-
-The backend is a single deployment in one region — there's no multi-region
-infra here, by design (that's not what was asked). To compare latency:
-
-1. Open the frontend URL with no VPN — type a region label ("India" / home
-   network), click **Test**.
-2. Connect a VPN to a server in another country (e.g. US), reload the page,
-   type "US" as the label, click **Test** again.
-3. Repeat for each region you want to compare (e.g. Russia).
-4. The log table accumulates every run (persisted in the browser via
-   localStorage). Use **Export CSV** to get a file with all runs for the
-   walkthrough.
-
-Each row shows:
-- **Round-trip (ms):** total time the browser measured, VPN hop included
-- **Server processing (ms):** time the Django server itself spent calling
-  the TMDB API (isolates backend cost from network cost)
-- **Est. network latency (ms):** round-trip minus server processing — a
-  rough proxy for how much the VPN/geography added
+| Region | Round-trip (ms) | Server (ms) | Est. network (ms) |
+|---|---|---|---|
+| India (no VPN) | | | |
+| US | | | |
+| Russia | | | |

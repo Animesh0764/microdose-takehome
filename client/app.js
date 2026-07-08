@@ -94,10 +94,9 @@ function clearLog() {
 
 function exportCsv() {
   const log = loadLog();
-  const header = "region,local_time,round_trip_ms,server_ms,network_ms";
+  const header = "region,round_trip_ms,server_ms,network_ms";
   const rows = log.map(
-    (r) =>
-      `${r.region},${r.localTime},${r.roundTripMs},${r.serverMs},${r.networkMs}`,
+    (r) => `${r.region},${r.roundTripMs},${r.serverMs},${r.networkMs}`,
   );
   const csv = [header, ...rows].join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
